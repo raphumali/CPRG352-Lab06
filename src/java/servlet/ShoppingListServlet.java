@@ -18,13 +18,15 @@ public class ShoppingListServlet extends HttpServlet {
             throws ServletException, IOException {
       
         HttpSession sess = request.getSession();
+        String action = request.getParameter("action");
         
         
-        if(request.getParameter("action") != null && request.getParameter("action").equals("logout")){
-           sess.invalidate();
-           getServletContext().getRequestDispatcher("/WEB-INF/register.jsp").forward(request, response);
-           return;
-       }
+        if(action!=null){
+            if(action.equals("logout")){
+            sess.invalidate();
+            getServletContext().getRequestDispatcher("/WEB-INF/register.jsp").forward(request, response);  
+        }
+        }
           getServletContext().getRequestDispatcher("/WEB-INF/register.jsp").forward(request, response);
 
     }
@@ -35,27 +37,32 @@ public class ShoppingListServlet extends HttpServlet {
             throws ServletException, IOException {
                  
         HttpSession sess = request.getSession();
-        String username = request.getParameter("username");
+        
         String addItems = request.getParameter("addItem");
         String listItems = request.getParameter("list");
+        String action = request.getParameter("action");
          
-        
+       
         ArrayList<String> items = (ArrayList<String>) sess.getAttribute("items");
         
         if(items == null){
             items = new ArrayList<>();
     }
-       if(request.getParameter("action").equals("add")) {
-           items.add(addItems);
-       }
-       if(request.getParameter("action").equals("delete")){
-           items.remove(listItems);
-       }
-       sess.setAttribute("items", items);
-       request.setAttribute("items", sess.getAttribute("items"));
-       
-       sess.setAttribute("username", username);
-       request.setAttribute("username", username);
+        
+        if(action!=null) switch(action){
+            case "register":
+                sess.setAttribute("username", request.getParameter("username"));
+                break;
+            case "add":
+                items.add(addItems);
+                sess.setAttribute("items", items);
+                break;
+            case "delete":
+                items.remove(listItems);
+                sess.setAttribute("items", items);
+                break;
+        }
+    
        getServletContext().getRequestDispatcher("/WEB-INF/shoppingList.jsp").forward(request, response);
        
 }
